@@ -53,6 +53,9 @@ docker run -t -i ubuntu /bin/bash
 ```
 
 Vous récupérez un shell qui est différent de votre propre distribution. 
+La commande "docker run ubuntu /bin/bash" vous permet de lancer un container à partir d'une image ubuntu.
+Les options -i et -t vous permettent respectivement de passer en mode interaction (donc plutôt que de taper des commandes sur votre shell de votre machine;
+vous allez intéragir avec le container directement), et de spécifier la manière dont vous envoyez les informations de votre machine à votre container (ici avec un "pseudo-TTY" d'après la doc).
 
 Tapez la commande 
 
@@ -72,7 +75,13 @@ Le container vient avec sa propre interface réseau.
 
 Pour le nginx en resolproxy nous allons partir de l'image [suivante](https://github.com/jwilder/nginx-proxy)
 
-L'explication du fonctionnement est disponible [ici](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/). 
+L'explication du fonctionnement est disponible [ici](http://jasonwilder.com/blog/2014/03/25/automated-nginx-reverse-proxy-for-docker/).
+
+Si vous n'avez pas la tête à lire ça, la version abrégée est que le reverse proxy vous permet tout un tas de choses, y compris de gérer le fait que les containers
+ont des adresses IP (un peu) trop dynamique ce qui fait qu'à chaque changement/lancement de container, il y aurait des problèmes de binding de port.
+Le reverse proxy va vous permettre de cacher ces aspects là, puisqu'ils seront gérés par ce composant.
+Ainsi, les chargements de versions modifiées de votre service n'auront pas besoin d'une gestion fine à la main des connexions, les différents utilisateurs qui voudront envoyer
+des requêtes simultanées au même service ne seront pas embêtés par des ports qui ne sont pas accessibles, etc.
 
 
 Lancement de nginx en resolvproxy
@@ -93,7 +102,8 @@ Lancez Terminator en root.
 ```bash
 sudo terminator
 ```
-
+Terminator va simplement vous permettre de simuler le fait que vous ayez plusieurs machines qui hostent des réplicats du même service.
+Vous allez pouvoir voir l'impact d'un reverse proxy (même si on le fait localement).
 
 Si vous êtes sur votre propre portable, modifiez votre fichier /etc/hosts pour faire correspondre **m** vers localhost. Ce serait à faire sur votre gestionnaire de nom de domaine en temps normal.
 
@@ -113,18 +123,22 @@ curl m:8080
 ```
 
 
-Puis créer n fenètre dans votre navigateur terminator (clic droit puis split horizontal ou vertical). 
+Puis créer plusieurs fenêtres dans votre navigateur terminator (clic droit puis split horizontal ou vertical). 
+Ce seront vos différentes machines host émulées. Vous pouvez en créer au moins 3 ou 4.
 Dans ces terminales, lancez la commande suivante pour tester votre resolve proxy.
 
 ```bash
 docker run -e VIRTUAL_HOST=m -t -i  nginx
 ```
 
-Testez votre resolv proxy en lançant la commande suivante. 
+Testez votre resolv proxy en lançant la commande suivante dans votre terminal originel. 
 
 ```bash
 curl m:8080
 ```
+
+En l'exécutant plusieurs fois et suffisament rapidement, vous devriez voir tantôt une fenêtre terminator se mettre à jour,
+tantôt une autre. C'est l'effet du load balancer (un autre service qui est géré par votre nginx).
 
 
 En tapant la commande suivante, vous pouvez regarder le fichier de configuration nginx qui sera généré à l'adresse suivante /etc/nginx/conf.d/default.conf. (N'oubliez pas de remplacer  865c1e67a00e par l'id de votre nginx en resolve proxy ($docker ps) pour récupérer la liste des containers en cours d'exécution.
@@ -144,12 +158,13 @@ docker kill "IDDOCKER" #pour tuer un docker.
 ```
 
 ### Etape 2: Utilisation de docker compose
-Utilisez docker compose pour déployer votre vos 4 services nginx et votre loadbalancer. 
+Maintenant que vous avez fait tout cela à la main, on va essayer d'automatiser ce déployement.
+Utilisez docker compose pour déployer vos 4 services nginx et votre loadbalancer. 
 
 
 ### Etape 3: Dockeriser une application existante
-
-Nous souhaitons partir d'une application Web de détection de visage. 
+C'était un peu trop simple avec un intérêt limité...
+Maintenant, nous souhaitons partir d'une application Web de détection de visage. 
 
 Src dans ce repository
 
@@ -158,9 +173,10 @@ https://github.com/barais/TPDockerSampleApp (Une documentation pour compiler et 
 Construisez le fichier docker file permettant de créer l'image docker pour cette application. 
 
 
-Je vous fournis une version compilé de la librairie opencv (en 64 bit) et du jar d'opencv. 
+Je vous fournis une version compilé de la librairie openCV (en 64 bit) et du jar d'openCV. 
 Pour faire tourner votre application, il faudra installer le jar d'open CV dans votre repo local maven. (voir ci-après)
 
+#### Prise en main avec l'installation en local
 Testons cette application. Tout d'abord installons les dépendances nécessaire. 
 
 ```bash
@@ -197,8 +213,8 @@ Voici votre application.
 
 Si vous tournez localement http://localhost:8080
 
-
-**TRAVAIL A FAIRE** Construisez un fichier dockerfile permettant de créer une image docker permettant de lancer cette application. 
+#### Déployement avec Docker
+**TRAVAIL A FAIRE** Construisez un fichier dockerfile qui va créer une image docker permettant de lancer cette application. 
 Vous aurez besoin d'ajoutez le répertoire *lib* et le répertoire *haarcascades* à votre image. 
 
 Nous souhaitons faire en sorte de fournir une image docker finale la plus petite possible. (Un paquet de carambar à la plus petite image fonctionnelle)
