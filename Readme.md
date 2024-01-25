@@ -219,6 +219,12 @@ Vous aurez besoin d'ajoutez le répertoire *lib* et le répertoire *haarcascades
 
 Nous souhaitons faire en sorte de fournir une image docker finale la plus petite possible. (Un paquet de carambar à la plus petite image fonctionnelle)
 
+Commandes pour créer et lancer l'image docker :
+```bash
+sudo docker build -t tpdockersample .
+sudo docker run -p 8080:8080 -d tpdockersample
+```
+
 
 **Version longue (non obligatoire)**
 
