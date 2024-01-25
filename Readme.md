@@ -248,6 +248,10 @@ Fournissez donc deux fichiers docker file, un premier pour construire l'image qu
 
 Fournir un docker compose qui permet de mettre en place une application avec 4 instances de votre serveur Web. 
 
+Commande pour lancer les images avec docker compose :
+```bash
+sudo docker-compose up -d
+```
 
 
 # How to compile this application

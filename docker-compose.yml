@@ -1,0 +1,29 @@
+version: '3'
+
+services:
+  proxy:
+    image: jwilder/nginx-proxy 
+    ports:
+      - "8080:80"
+    volumes:
+      - /var/run/docker.sock:/tmp/docker.sock
+
+  tpdockersample-service-1:
+    image: tpdockersample
+    environment:
+      VIRTUAL_HOST: localhost
+
+  tpdockersample-service-2:
+    image: tpdockersample
+    environment:
+      VIRTUAL_HOST: localhost
+
+  tpdockersample-service-3:
+    image: tpdockersample
+    environment:
+      VIRTUAL_HOST: localhost
+
+  tpdockersample-service-4:
+    image: tpdockersample
+    environment:
+      VIRTUAL_HOST: localhost
