@@ -3,12 +3,12 @@
 FROM ubuntu:22.04
 WORKDIR /
 COPY . /app
-RUN apt-get update
-RUN echo y | apt-get upgrade
+RUN apt-get -y update
+RUN apt-get -y upgrade
 RUN apt-get install -y openjdk-8-jdk
 RUN apt-get install -y maven
-RUN apt-get install -f libpng16-16
-RUN echo y | apt-get install -f libdc1394-dev
+RUN apt-get install -y -f libpng16-16
+RUN apt-get install -y -f libdc1394-dev
 RUN cd /app
 RUN mvn install:install-file -Dfile=/app/lib/opencv-3410.jar -DgroupId=org.opencv -DartifactId=opencv -Dversion=3.4.10 -Dpackaging=jar
 RUN cd /app && mvn package
