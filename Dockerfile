@@ -11,8 +11,7 @@ RUN mvn package
 FROM adoptopenjdk/openjdk8:alpine
 WORKDIR /app
 
-RUN apk add libpng-dev
-RUN apk add libdc1394-dev
+RUN apk add libpng-dev libdc1394-dev
 
 COPY --from=build-step /app/lib ./lib
 COPY --from=build-step /app/haarcascades ./haarcascades
